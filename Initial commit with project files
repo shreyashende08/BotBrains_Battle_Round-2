@@ -1,0 +1,149 @@
+## Part A: Parameters for Calculating Maximum Angle of Inclination
+1. **Center of Gravity (CoG)**: Higher CoG decreases stability.
+2. **Wheelbase**: Larger wheelbase increases stability.
+3. **Weight Distribution**: Uneven distribution affects stability.
+4. **Motor Torque**: Higher torque improves correction ability.
+5. **Wheel Diameter**: Larger wheels can handle larger inclinations.
+6. **Sensor Accuracy**: Precise sensors ensure accurate tilt detection.
+7. **Control Algorithm Efficiency**: Effective PID controllers maintain stability.
+8. **Speed and Acceleration**: Affects the ability to maintain balance.
+
+## Part B: Core Concept of TWSBR
+The core concept of TWSBR involves dynamic stabilization using sensors (gyroscopes and accelerometers), a control system (PID controller), motor actuation, and a feedback loop to maintain balance.
+
+## Part C: Unique Component Addition
+Adding a LiDAR sensor enhances navigation capabilities. The LiDAR provides precise mapping and obstacle detection, allowing the robot to plan efficient paths and avoid obstacles.
+## Ideation
+The TWSBR project aims to develop a robust self-balancing robot capable of navigating through various environments. The addition of a LiDAR sensor will significantly enhance its autonomous navigation capabilities.
+
+## Diagram
+[Include hand-drawn or software-generated diagrams of the robot, circuitry, and components]
+
+## Theory
+- **Dynamic Stabilization**: Using sensors to detect orientation and adjust movements.
+- **PID Control**: Adjusting motor speeds based on tilt angle to maintain balance.
+- **Autonomous Navigation**: Using LiDAR for mapping and obstacle detection.
+
+## Calculation
+[Include hand-written or scanned calculations related to the stability, motor torque, etc.]
+
+## References
+- Research papers on TWSBR
+- Sensor datasheets
+- Robotics textbooks
+- AI tools like ChatGPT
+# Two-Wheeled Self-Balancing Robot (TWSBR)
+
+## Introduction
+The TWSBR is designed to balance on two wheels while carrying out tasks like parcel delivery. It uses advanced sensors, control algorithms, and autonomous navigation capabilities.
+
+## Components Used
+- Arduino Uno
+- Gyroscope and Accelerometer
+- Motors
+- LiDAR Sensor
+- PID Controller
+- Ultrasonic Sensors
+- Battery
+
+## Working
+- The robot uses sensors to detect its orientation and balance.
+- The PID controller adjusts motor speeds to maintain balance.
+- The LiDAR sensor helps in mapping the environment and detecting obstacles.
+- The robot plans and follows efficient paths to deliver parcels.
+
+## Circuit Diagram
+[Include a detailed circuit diagram]
+
+## Code Explanation
+- The code uses libraries for sensor interfacing.
+- It reads sensor data and processes it using a PID controller.
+- It integrates LiDAR data for navigation.
+
+## Installation
+1. Clone the repository.
+2. Upload the Arduino code to the Arduino Uno.
+3. Assemble the components as per the circuit diagram.
+
+## Usage
+- The robot will automatically balance and navigate to deliver parcels.
+- Use the potentiometer to set thresholds and adjust the system settings.
+
+## References
+- Research papers on TWSBR
+- Sensor datasheets
+- Robotics textbooks
+- AI tools like ChatGPT
+#include <Servo.h>
+#include <LowPower.h>
+#include <DHT.h>
+#include <SPI.h>
+#include <MFRC522.h>
+
+const int soilMoisturePin = A0;
+const int pumpPin = 9;
+const int potPin = A1;
+const int buzzerPin = 8;
+const int ledPin = 7;
+const int buttonPin = 2;
+Servo servoMotor;
+
+int threshold = 300;  // Default threshold
+
+void setup() {
+  pinMode(soilMoisturePin, INPUT);
+  pinMode(pumpPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
+  servoMotor.attach(10);
+  attachInterrupt(digitalPinToInterrupt(buttonPin), wakeUp, FALLING);
+}
+
+void loop() {
+  // Read potentiometer to adjust threshold
+  threshold = analogRead(potPin) / 4;  // Map 0-1023 to 0-255
+  
+  // Read soil moisture
+  int soilMoisture = analogRead(soilMoisturePin);
+  
+  if (soilMoisture < threshold) {
+    // Start watering
+    digitalWrite(pumpPin, HIGH);
+    servoMotor.write(90);
+    feedback(true);  // Feedback on start
+    
+    delay(5000);  // Watering duration
+    
+    // Stop watering
+    digitalWrite(pumpPin, LOW);
+    servoMotor.write(0);
+    feedback(false);  // Feedback on stop
+  }
+
+  delay(1000); // Check soil moisture every second
+
+  // Enter sleep mode for power efficiency
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+}
+
+// Feedback mechanism with buzzer and LED
+void feedback(bool start) {
+  if (start) {
+    tone(buzzerPin, 1000, 200);  // Beep for 200 ms
+  } else {
+    tone(buzzerPin, 500, 200);  // Beep for 200 ms at a different frequency
+  }
+  
+  for (int i = 0; i < 3; i++) {  // Blink LED three times
+    digitalWrite(ledPin, HIGH);
+    delay(200);
+    digitalWrite(ledPin, LOW);
+    delay(200);
+  }
+}
+
+// Wake up function for interrupt
+void wakeUp() {
+  // This function will be called when the button is pressed
+}
